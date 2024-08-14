@@ -9,8 +9,8 @@ namespace Testing
         static void Main(string[] args)
         {
             int pressNum = 0;
-            //FileWatcher filewatcher = new FileWatcher();
-            //filewatcher.InitWatcher();
+            FileWatcher filewatcher = new FileWatcher();
+            filewatcher.InitWatcher();
 
             SQLitePCL.Batteries.Init();
 
@@ -25,9 +25,9 @@ namespace Testing
             {
                 Console.WriteLine("Press Number");
 
-                switch (int.Parse(Console.ReadLine()))
+                switch (Console.ReadLine())
                 {
-                    case 0:
+                    case "0":
                         {
                             // 테이블 만들기
                             using var cmd = new SqliteCommand("CREATE TABLE IF NOT EXISTS MyTable " +
@@ -37,7 +37,7 @@ namespace Testing
                         Console.WriteLine("테이블 생성 완료");
                         break;
 
-                    case 1:
+                    case "1":
                         {
                             // 테이블에 이메일 넣기
                             Console.WriteLine("Press E-mail");
@@ -49,30 +49,47 @@ namespace Testing
                         }
                         Console.WriteLine("이메일 기입 완료");
                         break;
-                    case 2:
+                    case "2":
                         {
                             // 테이블에 마지막 행 삭제
-                            using var deleteCmd = new SqliteCommand("DELETE FROM MyTable WHERE ROWID IN" +
-                                "(SELECT ROWID FROM MyTable ORDER BY ROWID DESC LIMIT 1)");
-                            deleteCmd.ExecuteNonQuery();
+                            //using var deleteCmd = new SqliteCommand("DELETE FROM MyTable");
+                            //int result = deleteCmd.ExecuteNonQuery();
+                            using var transaction = connection.BeginTransaction();
+                            try
+                            {
+                                using var deleteCmd = new SqliteCommand("DELETE FROM MyTable");
+                                deleteCmd.ExecuteNonQuery();
+                                transaction.Commit();
+                                Console.WriteLine("삭제 성공");
+                            }
+                            catch (Exception)
+                            {
+                                Console.WriteLine("삭제 실패");
+                                transaction.Rollback();
+                            }
                         }
-                        Console.WriteLine("삭제 완료");
                         break;
+                    case "3":
+                        {
+                            //using var readCmd = new SqliteCommand("SELECT * FROM TB_RECEIVE ORDER BY ROWID DESC LIMIT 1;", connection);
+                            using var readCmd = new SqliteCommand("SELECT * FROM MyTable;", connection);
+                            using var reader = readCmd.ExecuteReader();
+                            while (reader.Read())
+                            {
+                                Console.WriteLine($"ID: {reader["ID"]}, s_userAddr: {reader["s_userAddr"]}");
+                            }
+                            //Console.WriteLine($"ID: {reader["ID"]}, s_userAddr: {reader["s_userAddr"]}");
+                        }
+                        break;
+                    default:
+                        Console.WriteLine("끝");
+                        return;
                 }
 
 
 
             }
-            // 테이블 만들기
-            //using var cmd = new SqliteCommand("CREATE TABLE IF NOT EXISTS MyTable " +
-            //    "(ID INTEGER PRIMARY KEY, s_userAddr TEXT);", connection);
-            //cmd.ExecuteNonQuery();
 
-            // 테이블에 값 넣기
-            //using var paramCmd = new SqliteCommand("INSERT INTO MyTable (Name)" +
-            //    "VALUES (@name);", connection);
-            //paramCmd.Parameters.AddWithValue("@name", "John");
-            //paramCmd.ExecuteNonQuery();
 
             //using var transaction = connection.BeginTransaction();
             //try
@@ -108,7 +125,7 @@ namespace Testing
 
         public void InitWatcher()
         {
-            string filePath = $"D:\\WatcherTesting\\";
+            string filePath = $"D:\\WatcherTesting\\SQLTesting\\";
 
             FileSystemWatcher watcher = new FileSystemWatcher();
 
@@ -129,15 +146,29 @@ namespace Testing
             watcher.Renamed += new RenamedEventHandler(Renamed);
 
             watcher.EnableRaisingEvents = true;
-
-            Console.WriteLine("종료 - Enter");
-            Console.ReadLine();
         }
 
         private void Changed(object source, FileSystemEventArgs e)
         {
-            SendMail sendMail = new SendMail();
-            sendMail.S_Mail(e.FullPath);
+            Console.WriteLine("감지완료!");
+
+            SQLitePCL.Batteries.Init();
+
+            var connectrionStringMemory = "Data Source=:memory:";
+            var connectionStringFile = @"Data Source=D:\WatcherTesting\SQLTesting\mydatabase.dat";
+
+            using var connection = new SqliteConnection(connectionStringFile);
+            connection.Open();
+
+            using var readCmd = new SqliteCommand("SELECT * FROM MyTable ORDER BY ROWID DESC LIMIT 1;", connection);
+            using var reader = readCmd.ExecuteReader();
+
+            while (reader.Read())
+            {
+                Console.WriteLine($"크아악 : {reader["s_userAddr"]}");
+                SendMail sendMail = new SendMail();
+                sendMail.S_Mail(@"D:\WatcherTesting\SQLTesting\Testing.docx", $"{reader["s_userAddr"]}");
+            }
         }
 
         private void Renamed(object source, FileSystemEventArgs e)
