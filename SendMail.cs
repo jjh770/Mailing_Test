@@ -13,7 +13,7 @@ namespace Testing
             var mail = new MailMessage()
             {
                 // ------------------------------------------수정이 필요한 부분-------------------------------------------
-                From = new MailAddress("whdgur0068@gmail.com"),
+                From = new MailAddress("보내는 이메일"),
                 Subject = "이메일 테스트",
                 Body = "안녕하세요 이메일 테스트 중입니다."
                 // ------------------------------------------수정이 필요한 부분-------------------------------------------
@@ -33,7 +33,7 @@ namespace Testing
                 // ------------------------------------------수정이 필요한 부분-------------------------------------------
                 // 이메일 + 앱 비밀번호 (보안 - 검색에 앱 비밀번호)
                 // https://myaccount.google.com/apppasswords?pli=1&rapt=AEjHL4PHOpBOX5rHcaCavxoJc36EFKapLXPsilaXVF-0mmmut3nWc_aaDkZuoKXG7Zag9kn2eI5_0dkxidH20YPfx-oHMAIf96j0g8Y0d7wLtgFy0o43zRY
-                Credentials = new NetworkCredential("whdgur0068@gmail.com", "phml ekuc sesk dqwk")
+                Credentials = new NetworkCredential("보내는 이메일", "앱비밀번호")
                 // ------------------------------------------수정이 필요한 부분-------------------------------------------
             };
 
@@ -44,5 +44,3 @@ namespace Testing
         }
     }
 }
-
-//phml ekuc sesk dqwk
