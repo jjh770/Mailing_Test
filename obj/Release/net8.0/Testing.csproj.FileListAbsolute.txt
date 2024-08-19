@@ -42,3 +42,4 @@ D:\Algorithm\Testing\obj\Release\net8.0\refint\Testing.dll
 D:\Algorithm\Testing\obj\Release\net8.0\Testing.pdb
 D:\Algorithm\Testing\obj\Release\net8.0\Testing.genruntimeconfig.cache
 D:\Algorithm\Testing\obj\Release\net8.0\ref\Testing.dll
+D:\Algorithm\Testing\obj\Release\net8.0\Testing.sourcelink.json

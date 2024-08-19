@@ -3,129 +3,25 @@ using Microsoft.Data.Sqlite;
 
 namespace Testing
 {
-
+    
     public class FileWatcher
     {
         static void Main(string[] args)
         {
-            int pressNum = 0;
             FileWatcher filewatcher = new FileWatcher();
             filewatcher.InitWatcher();
 
-            SQLitePCL.Batteries.Init();
-
-            var connectrionStringMemory = "Data Source=:memory:";
-            //var connectionStringFile = @"Data Source=E:\판교박물관 포토홀리\potoHoli\data\holilog.dat";
-            var connectionStringFile = @"Data Source=D:\WatcherTesting\SQLTesting\mydatabase.dat";
-
-            using var connection = new SqliteConnection(connectionStringFile);
-            connection.Open();
-
-            while (true)
-            {
-                Console.WriteLine("Press Number");
-
-                switch (Console.ReadLine())
-                {
-                    case "0":
-                        {
-                            // 테이블 만들기
-                            using var cmd = new SqliteCommand("CREATE TABLE IF NOT EXISTS MyTable " +
-                            "(ID INTEGER PRIMARY KEY, s_userAddr TEXT);", connection);
-                            cmd.ExecuteNonQuery();
-                        }
-                        Console.WriteLine("테이블 생성 완료");
-                        break;
-
-                    case "1":
-                        {
-                            // 테이블에 이메일 넣기
-                            Console.WriteLine("Press E-mail");
-                            string e_mail = Console.ReadLine();
-                            using var paramCmd = new SqliteCommand("INSERT INTO MyTable (s_userAddr)" +
-                                "VALUES (@name);", connection);
-                            paramCmd.Parameters.AddWithValue("@name", $"{e_mail}");
-                            paramCmd.ExecuteNonQuery();
-                        }
-                        Console.WriteLine("이메일 기입 완료");
-                        break;
-                    case "2":
-                        {
-                            // 테이블에 마지막 행 삭제
-                            //using var deleteCmd = new SqliteCommand("DELETE FROM MyTable");
-                            //int result = deleteCmd.ExecuteNonQuery();
-                            using var transaction = connection.BeginTransaction();
-                            try
-                            {
-                                using var deleteCmd = new SqliteCommand("DELETE FROM MyTable");
-                                deleteCmd.ExecuteNonQuery();
-                                transaction.Commit();
-                                Console.WriteLine("삭제 성공");
-                            }
-                            catch (Exception)
-                            {
-                                Console.WriteLine("삭제 실패");
-                                transaction.Rollback();
-                            }
-                        }
-                        break;
-                    case "3":
-                        {
-                            //using var readCmd = new SqliteCommand("SELECT * FROM TB_RECEIVE ORDER BY ROWID DESC LIMIT 1;", connection);
-                            using var readCmd = new SqliteCommand("SELECT * FROM MyTable;", connection);
-                            using var reader = readCmd.ExecuteReader();
-                            while (reader.Read())
-                            {
-                                Console.WriteLine($"ID: {reader["ID"]}, s_userAddr: {reader["s_userAddr"]}");
-                            }
-                            //Console.WriteLine($"ID: {reader["ID"]}, s_userAddr: {reader["s_userAddr"]}");
-                        }
-                        break;
-                    default:
-                        Console.WriteLine("끝");
-                        return;
-                }
-
-
-
-            }
-
-
-            //using var transaction = connection.BeginTransaction();
-            //try
-            //{
-            //    using var cmd1 = new SqliteCommand("INSERT INTO MyTable (Name)" +
-            //    "VALUES (@name);", connection, transaction);
-            //    cmd1.Parameters.AddWithValue("@name", "Daniel");
-            //    cmd1.ExecuteNonQuery();
-
-            //    using var cmd2 = new SqliteCommand("INSERT INTO MyTable (Name)" +
-            //    "VALUES (@name);", connection, transaction);
-            //    cmd2.Parameters.AddWithValue("@name", "Daniel");
-            //    cmd2.ExecuteNonQuery();
-
-            //    transaction.Commit();
-            //}
-            //catch (Exception)
-            //{
-            //    transaction.Rollback();
-            //}
-
-
-            //using var readCmd = new SqliteCommand("SELECT * FROM TB_RECEIVE ORDER BY ROWID DESC LIMIT 1;", connection);
-            //using var readCmd = new SqliteCommand("SELECT * FROM MyTable;", connection);
-            //using var reader = readCmd.ExecuteReader();
-            //while(reader.Read())
-            //{
-            //    //if (reader["ID"].ToString() == "20")
-            //    Console.WriteLine($"ID: {reader["ID"]}, Name: {reader["Name"]}");
-            //}
-            //Console.WriteLine($"ID: {reader["ID"]}, s_userAddr: {reader["s_userAddr"]}");
+            Console.WriteLine("이메일 보내기 성공이 뜰때까지 대기");
+            Console.ReadLine();
         }
+        public bool createdFinish = false;
 
         public void InitWatcher()
         {
-            string filePath = $"D:\\WatcherTesting\\SQLTesting\\";
+            // ------------------------------------------넣어야할부분-------------------------------------------
+            // string filePath = $"사진이 저장되는 주소";
+            // ------------------------------------------넣어야할부분-------------------------------------------
+            string filePath = $"D:\\WatcherTesting\\SQLTesting\\photo_image\\";
 
             FileSystemWatcher watcher = new FileSystemWatcher();
 
@@ -138,44 +34,64 @@ namespace Testing
                                    NotifyFilters.LastAccess |
                                    NotifyFilters.LastWrite;
 
-            watcher.Filter = "*.*";
+            watcher.Filter = "*.jpg";
             watcher.IncludeSubdirectories = true;
 
-            watcher.Created += new FileSystemEventHandler(Changed);
-            watcher.Changed += new FileSystemEventHandler(Changed);
-            watcher.Renamed += new RenamedEventHandler(Renamed);
+            watcher.Created += new FileSystemEventHandler(Created);
 
             watcher.EnableRaisingEvents = true;
         }
 
-        private void Changed(object source, FileSystemEventArgs e)
+        private void Created(object source, FileSystemEventArgs e)
         {
-            Console.WriteLine("감지완료!");
+            if (createdFinish)
+                return;
+            Console.WriteLine("생성 완료!");
+
+            string imgFile = "", userAddr = "";
 
             SQLitePCL.Batteries.Init();
-
-            var connectrionStringMemory = "Data Source=:memory:";
-            var connectionStringFile = @"Data Source=D:\WatcherTesting\SQLTesting\mydatabase.dat";
-
+            // ------------------------------------------넣어야할부분-------------------------------------------
+            // var connectionStringFile = @"바뀌는 로그파일 주소";
+            var connectionStringFile = @"Data Source=D:\판교박물관 포토홀리\potoHoli\data\holilog.dat";
+            // ------------------------------------------넣어야할부분-------------------------------------------
             using var connection = new SqliteConnection(connectionStringFile);
             connection.Open();
-
-            using var readCmd = new SqliteCommand("SELECT * FROM MyTable ORDER BY ROWID DESC LIMIT 1;", connection);
+            using var readCmd = connection.CreateCommand();
+            readCmd.CommandText =
+            @"  SELECT *
+                FROM TB_RECEIVE
+                WHERE n_sendType = 1
+                ORDER BY ROWID DESC LIMIT 1
+            ";
             using var reader = readCmd.ExecuteReader();
+
+            string[] names = e.FullPath.Split('\\');
+            string path = names[names.Length - 2] + '/' + names[names.Length - 1];
 
             while (reader.Read())
             {
-                Console.WriteLine($"크아악 : {reader["s_userAddr"]}");
-                SendMail sendMail = new SendMail();
-                sendMail.S_Mail(@"D:\WatcherTesting\SQLTesting\Testing.docx", $"{reader["s_userAddr"]}");
+                userAddr = $"{reader["s_userAddr"]}";
+                imgFile = $"{reader["s_imgFile"]}";
+                Console.WriteLine($"s_userAddr: {userAddr}");
+                Console.WriteLine($"s_imgFile: {imgFile}");
+                Console.WriteLine($"{path}");
             }
-        }
 
-        private void Renamed(object source, FileSystemEventArgs e)
-        {
-            Console.Write(e.FullPath);
+            if (imgFile == path)
+            {
+                SendMail sendMail = new SendMail();
+                sendMail.S_Mail(e.FullPath, "whdgur1068@naver.com");
+                //sendMail.S_Mail(e.FullPath, userAddr);
+            }
+            else
+            {
+                Console.WriteLine("전송 실패");
+                Console.WriteLine("로그 파일 userAddr : " + userAddr);
+                Console.WriteLine("로그 파일 imgFile : " + imgFile);
+                Console.WriteLine("실제 사진 path : " + path);
+            }
+            createdFinish = true;
         }
     }
-
-
 }
