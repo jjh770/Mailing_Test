@@ -1,9 +1,10 @@
-﻿using System.IO;
-using Microsoft.Data.Sqlite;
+﻿using Microsoft.Data.Sqlite;
+using System;
+using System.IO;
+using System.Threading;
 
 namespace Testing
 {
-    
     public class FileWatcher
     {
         static void Main(string[] args)
@@ -14,14 +15,10 @@ namespace Testing
             Console.WriteLine("이메일 보내기 성공이 뜰때까지 대기");
             Console.ReadLine();
         }
-        public bool createdFinish = false;
 
         public void InitWatcher()
         {
-            // ------------------------------------------넣어야할부분-------------------------------------------
-            // string filePath = $"사진이 저장되는 주소";
-            // ------------------------------------------넣어야할부분-------------------------------------------
-            string filePath = $"D:\\WatcherTesting\\SQLTesting\\photo_image\\";
+            string filePath = $"C:\\VFlap\\potoHoli\\photo_image\\";
 
             FileSystemWatcher watcher = new FileSystemWatcher();
 
@@ -44,17 +41,13 @@ namespace Testing
 
         private void Created(object source, FileSystemEventArgs e)
         {
-            if (createdFinish)
-                return;
+            Thread.Sleep(3000);
             Console.WriteLine("생성 완료!");
 
             string imgFile = "", userAddr = "";
 
             SQLitePCL.Batteries.Init();
-            // ------------------------------------------넣어야할부분-------------------------------------------
-            // var connectionStringFile = @"바뀌는 로그파일 주소";
-            var connectionStringFile = @"Data Source=D:\판교박물관 포토홀리\potoHoli\data\holilog.dat";
-            // ------------------------------------------넣어야할부분-------------------------------------------
+            var connectionStringFile = @"Data Source=C:\VFlap\potoHoli\data\holilog.dat";
             using var connection = new SqliteConnection(connectionStringFile);
             connection.Open();
             using var readCmd = connection.CreateCommand();
@@ -73,25 +66,24 @@ namespace Testing
             {
                 userAddr = $"{reader["s_userAddr"]}";
                 imgFile = $"{reader["s_imgFile"]}";
-                Console.WriteLine($"s_userAddr: {userAddr}");
-                Console.WriteLine($"s_imgFile: {imgFile}");
-                Console.WriteLine($"{path}");
+                Console.WriteLine($"DB 메일주소: {userAddr}");
+                Console.WriteLine($"DB 파일이름: {imgFile}");
+                Console.WriteLine($"파일생성 위치: {e.FullPath}");
+                Console.WriteLine($"파일위치 필터링: {path}");
             }
 
             if (imgFile == path)
             {
                 SendMail sendMail = new SendMail();
-                sendMail.S_Mail(e.FullPath, "whdgur1068@naver.com");
-                //sendMail.S_Mail(e.FullPath, userAddr);
+                sendMail.S_Mail(e.FullPath, userAddr);
             }
             else
             {
-                Console.WriteLine("전송 실패");
+                Console.WriteLine("파일 감지부분 전송 실패");
                 Console.WriteLine("로그 파일 userAddr : " + userAddr);
                 Console.WriteLine("로그 파일 imgFile : " + imgFile);
                 Console.WriteLine("실제 사진 path : " + path);
             }
-            createdFinish = true;
         }
     }
 }

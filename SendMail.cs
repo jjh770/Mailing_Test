@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using System.Net.Mail;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Testing
 {
@@ -10,37 +9,40 @@ namespace Testing
         public void S_Mail(string fullPath, string Addr)
         {
             Thread.Sleep(1000);
-            var mail = new MailMessage()
+            try
             {
-                // ------------------------------------------수정이 필요한 부분-------------------------------------------
-                From = new MailAddress("보내는 이메일"),
-                Subject = "이메일 테스트",
-                Body = "안녕하세요 이메일 테스트 중입니다."
-                // ------------------------------------------수정이 필요한 부분-------------------------------------------
-            };
-            Console.WriteLine("이메일 전송 준비!");
+                var mail = new MailMessage()
+                {
+                    From = new MailAddress("whdgur0068@gmail.com"),
+                    Subject = "이메일 테스트",
+                    Body = "안녕하세요 이메일 테스트 중입니다."
+                };
+                Console.WriteLine("이메일 전송 준비!");
 
-            mail.To.Add(new MailAddress(Addr));
-            Attachment file = new Attachment(fullPath);
-            mail.Attachments.Add(file);
+                mail.To.Add(new MailAddress(Addr));
+                Attachment file = new Attachment(fullPath);
+                mail.Attachments.Add(file);
 
-            var client = new SmtpClient()
+                var client = new SmtpClient()
+                {
+                    Port = 587,
+                    DeliveryMethod = SmtpDeliveryMethod.Network,
+                    Host = "smtp.gmail.com",
+                    EnableSsl = true,
+                    // 이메일 + 앱 비밀번호 (보안 - 검색에 앱 비밀번호)
+                    // https://myaccount.google.com/apppasswords?pli=1&rapt=AEjHL4PHOpBOX5rHcaCavxoJc36EFKapLXPsilaXVF-0mmmut3nWc_aaDkZuoKXG7Zag9kn2eI5_0dkxidH20YPfx-oHMAIf96j0g8Y0d7wLtgFy0o43zRY
+                    Credentials = new NetworkCredential("whdgur0068@gmail.com", "phml ekuc sesk dqwk")
+                };
+                
+                client.Send(mail);
+                Console.WriteLine("이메일 전송 완료!");
+                Console.WriteLine("다음 이메일 전송 대기");
+            }
+            catch (Exception ex)
             {
-                Port = 587,
-                DeliveryMethod = SmtpDeliveryMethod.Network,
-                Host = "smtp.gmail.com",
-                EnableSsl = true,
-                // ------------------------------------------수정이 필요한 부분-------------------------------------------
-                // 이메일 + 앱 비밀번호 (보안 - 검색에 앱 비밀번호)
-                // https://myaccount.google.com/apppasswords?pli=1&rapt=AEjHL4PHOpBOX5rHcaCavxoJc36EFKapLXPsilaXVF-0mmmut3nWc_aaDkZuoKXG7Zag9kn2eI5_0dkxidH20YPfx-oHMAIf96j0g8Y0d7wLtgFy0o43zRY
-                Credentials = new NetworkCredential("보내는 이메일", "앱비밀번호")
-                // ------------------------------------------수정이 필요한 부분-------------------------------------------
-            };
-
-            client.Send(mail);
-            Console.WriteLine("이메일 전송 완료!");
-            Console.WriteLine("다음 이메일 전송 대기");
-            fileWatcher.createdFinish = false;
+                Console.WriteLine("이메일 전송 실패");
+                Console.WriteLine(ex.ToString());
+            }
         }
     }
 }
