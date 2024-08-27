@@ -18,7 +18,10 @@ namespace Testing
 
         public void InitWatcher()
         {
-            string filePath = $"C:\\VFlap\\potoHoli\\photo_image\\";
+            // ------------------------------------------넣어야할부분-------------------------------------------
+            string filePath = $"C:이미지 파일이 생성되는 폴더(이미지 감지 -> 메일 체크 -> 메일 보내기)";
+            //string filePath = $"D:\\WatcherTesting\\SQLTesting\\photo_image\\";
+            // ------------------------------------------넣어야할부분-------------------------------------------
 
             FileSystemWatcher watcher = new FileSystemWatcher();
 
@@ -42,12 +45,16 @@ namespace Testing
         private void Created(object source, FileSystemEventArgs e)
         {
             Thread.Sleep(3000);
+            Console.WriteLine("Created 시작");
             Console.WriteLine("생성 완료!");
 
             string imgFile = "", userAddr = "";
 
             SQLitePCL.Batteries.Init();
-            var connectionStringFile = @"Data Source=C:\VFlap\potoHoli\data\holilog.dat";
+            // ------------------------------------------넣어야할부분-------------------------------------------
+            var connectionStringFile = @"Data Source=C:db 데이터 파일 경로 넣기";
+            // var connectionStringFile = @"Data Source=D:\판교박물관 포토홀리\potoHoli\data\holilog.dat";
+            // ------------------------------------------넣어야할부분-------------------------------------------
             using var connection = new SqliteConnection(connectionStringFile);
             connection.Open();
             using var readCmd = connection.CreateCommand();
