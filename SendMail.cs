@@ -7,7 +7,6 @@ namespace Testing
 {
     public class SendMail
     {
-        FileWatcher fileWatcher = new FileWatcher();
         public void S_Mail(string fullPath, string Addr)
         {
             Thread.Sleep(1000);
@@ -16,7 +15,7 @@ namespace Testing
                 var mail = new MailMessage()
                 {
                     // ------------------------------------------수정이 필요한 부분-------------------------------------------
-                    From = new MailAddress("메일 보내는 주소"),
+                    From = new MailAddress("whdgur0068@gmail.com"),
                     Subject = "제목",
                     Body = "본문"
                     // ------------------------------------------수정이 필요한 부분-------------------------------------------
@@ -37,10 +36,10 @@ namespace Testing
                     // 이메일 + 앱 비밀번호 (보안 - 검색에 앱 비밀번호)
                     // https://myaccount.google.com/apppasswords?pli=1&rapt=AEjHL4PHOpBOX5rHcaCavxoJc36EFKapLXPsilaXVF-0mmmut3nWc_aaDkZuoKXG7Zag9kn2eI5_0dkxidH20YPfx-oHMAIf96j0g8Y0d7wLtgFy0o43zRY
                     // ------------------------------------------수정이 필요한 부분-------------------------------------------
-                    Credentials = new NetworkCredential("구글 SMTP 서버 사용, 구글 이메일 넣기", "앱 비밀번호 설정 후 넣기")
+                    Credentials = new NetworkCredential("whdgur0068@gmail.com", "cmjn fbog dmpi tkiz")
                 };
 
-                client.Send(mail);
+                //client.Send(mail);
                 Console.WriteLine("이메일 전송 완료!");
                 Console.WriteLine("다음 이메일 전송 대기");
             }
@@ -52,3 +51,4 @@ namespace Testing
         }
     }
 }
+//cmjn fbog dmpi tkiz
