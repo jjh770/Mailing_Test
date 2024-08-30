@@ -42,6 +42,7 @@ namespace Testing
             while (watcher.EnableRaisingEvents == false && i < iMaxAttempts)
             {
                 i += 1;
+                Console.WriteLine($"{i}번째 재시도");
                 try
                 {
                     watcher.EnableRaisingEvents = true;

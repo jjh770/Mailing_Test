@@ -22,7 +22,7 @@ namespace Testing
                 };
                 Console.WriteLine("이메일 전송 준비!");
 
-                mail.To.Add(new MailAddress(Addr));
+                mail.To.Add(new MailAddress("whdgur1068@naver.com"));
                 Attachment file = new Attachment(fullPath);
                 mail.Attachments.Add(file);
 
@@ -39,7 +39,7 @@ namespace Testing
                     Credentials = new NetworkCredential("whdgur0068@gmail.com", "cmjn fbog dmpi tkiz")
                 };
 
-                //client.Send(mail);
+                client.Send(mail);
                 Console.WriteLine("이메일 전송 완료!");
                 Console.WriteLine("다음 이메일 전송 대기");
             }
